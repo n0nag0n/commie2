@@ -78,3 +78,19 @@ li div.newcomment button {
 #footer {
     font-size: 95%;
 }
+
+.comment, .comment .user, .comment .user {
+	color: #fff !important;
+}
+
+.comment code {
+	border: 1px solid #999;
+	padding: 1px 4px;
+	background-color: #888;
+	display: inline-block;
+}
+
+#author {
+	font-style: italic;
+	font-weight: bold;
+}
