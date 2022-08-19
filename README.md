@@ -50,3 +50,6 @@ Make sure that your `data/` directory is writable by the webserver user (www-use
 
 #### Ok I did that, but they still won't save!
 Do you have SELinux enabled? You can check with `sestatus` as root and see. If you do have it enabled, you need to make sure that the `data/` dir has the correct context permissions which would likely be something like `semanage fcontext -a -t httpd_sys_rw_content_t "/path/to/commit/data(/.*)?"` and then run `restorecon -Rv /path/to/commie/`
+
+## License
+[MIT License](LICENSE.md)
