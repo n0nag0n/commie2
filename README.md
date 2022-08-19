@@ -15,7 +15,7 @@ commie 2.0 is a pastebin script with line commenting support. This was originall
 - Compatible with PHP >=7.0
 
 ## Install
-To install, simply clone this repo and configure your webserver to point to the `public/` directory. Then move to the configuration section.
+To install, simply clone this repo and configure your webserver to point to the `public/` directory. You will also need composer and to run `composer install`. Then move to the configuration section.
 
 ## Configuration
 This is very easy to configure. There is a `.config_sample.php` file with instructions on how to enable emailing, encryption, and other settings. Copy or rename this file to `.config.php` and you're on your way!
