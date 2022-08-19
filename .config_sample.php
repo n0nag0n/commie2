@@ -10,5 +10,6 @@ return [
 		'port' => 25,
 		'from_email' => 'commie@example.com',
 		'from_name' => 'Commie Bot'
-	]
+	],
+	'encryption_key' => '' // run vendor/bin/generate-defuse-key and copy value here
 ];

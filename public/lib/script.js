@@ -10,6 +10,7 @@ function save() {
 	var content = $textarea.val();
 	var emailAddress = $email.val();
 	var realName = $name.val();
+	var language = $('#language').val();
 	if (!content.length || !emailAddress.length || !realName.length) return;
 
 	Cookies.set('user', realName, { expires: 365 });
@@ -21,7 +22,8 @@ function save() {
 			do: 'save',
 			'content': content,
 			'email': emailAddress,
-			'name': realName
+			'name': realName,
+			'language': language
 		},
 		function (paste) {
 			if (paste === false) {
@@ -50,13 +52,21 @@ function load(uid) {
 		},
 		function (paste) {
 			var dateTime = new Date(paste.time * 1000);
-			var safePaste = escapeHtml(paste.content);
-			$('#author').text(paste.name + ' pasted this on ' + dateTime.toLocaleString())
-			$('#paste').html(PR.prettyPrintOne(safePaste, null, true)).addClass('prettyprint');
+			$('#author').text(paste.name + ' pasted this on ' + dateTime.toLocaleString());
+			$('#paste').html(paste.highlighted_content);
 			$('#newpaste').html(paste.content);
-			loadComments(uid);
+			loadComments(uid, paste.comments);
 			$('#name').val(Cookies.get('user'));
 			$('#email').val(Cookies.get('email'));
+			if("preview_html" in paste) {
+				$('#paste-container').css('width', '49.5%');
+				$('#preview-container').show();
+				$('#preview').html(paste.preview_html);
+			} else {
+				$('#paste-container').css('width', '100%');
+				$('#preview-container').hide();
+				$('#preview').empty();
+			}
 		},
 		'json'
 	);
@@ -67,32 +77,22 @@ function load(uid) {
  *
  * @param {String} uid
  */
-function loadComments(uid) {
-	$.get(
-		API,
-		{
-			do: 'loadComments',
-			uid: uid
-		},
-		function (comments) {
-			var $lines = $('#paste').find('li');
+function loadComments(uid, comments) {
+	var $lines = $('#paste').find('li');
 
-			for (var i = 0; i < comments.length; i++) {
-				commentShow($($lines.get(comments[i].line)), comments[i]);
-			}
+	for (var i = 0; i < comments.length; i++) {
+		commentShow($($lines.get(comments[i].line)), comments[i]);
+	}
 
-			$lines.click(function (e) {
-				console.log('hi');
-				if (e.target != this) return;
-				commentForm(uid, $(this));
-				e.preventDefault();
-				e.stopPropagation();
-			});
+	$lines.click(function (e) {
+		console.log('hi');
+		if (e.target != this) return;
+		commentForm(uid, $(this));
+		e.preventDefault();
+		e.stopPropagation();
+	});
 
-			$('#help').show();
-		},
-		'json'
-	)
+	$('#help').show();
 }
 
 /**
@@ -110,7 +110,6 @@ function commentShow($li, comment) {
 		'<div class="text"></div>' +
 		'<div class="user"></div>' +
 		'</div>');
-		console.log(comment);
 	var dateTime = new Date(comment.time * 1000);
 	$comment.find('.text').html(comment.comment);
 	$comment.find('.user').text(dateTime.toLocaleString() + ' - ' + comment.user_name);
