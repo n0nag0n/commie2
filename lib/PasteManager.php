@@ -278,7 +278,7 @@ EOT;
 		$internalErrors = libxml_use_internal_errors(true);
 		$css_inliner = new CSSInliner;
 		$css_inliner->addCSS(__DIR__.'/../public/lib/style.css');
-		$css_inliner->addCSS(__DIR__.'/../public/lib/dark.css');
+		$css_inliner->addCSS(__DIR__.'/../public/lib/sunburst.css');
 		$html = $css_inliner->render($html);
 		// Re-enable crappy errors
 		libxml_use_internal_errors($internalErrors);
