@@ -85,7 +85,6 @@ function loadComments(uid, comments) {
 	}
 
 	$lines.click(function (e) {
-		console.log('hi');
 		if (e.target != this) return;
 		commentForm(uid, $(this));
 		e.preventDefault();
@@ -194,7 +193,7 @@ function commentForm(uid, $li) {
 	} else {
 		$form.toggle();
 	}
-
+	$form.find('textarea').focus();
 	$form.find('input[name="user"]').val(Cookies.get('user'));
 	$form.find('input[name="email"]').val(Cookies.get('email'));
 }
