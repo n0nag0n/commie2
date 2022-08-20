@@ -1,4 +1,4 @@
-# commie 2.0 ☭
+# commie2
 
 commie 2.0 is a pastebin script with line commenting support. This was originally forked from [splitbrain/commie](https://github.com/splitbrain/commie) and further improved and expanded upon.
 
