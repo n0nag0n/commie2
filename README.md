@@ -20,6 +20,51 @@ To install, simply clone this repo and configure your webserver to point to the 
 ## Configuration
 This is very easy to configure. There is a `.config_sample.php` file with instructions on how to enable emailing, encryption, and other settings. Copy or rename this file to `.config.php` and you're on your way!
 
+## API
+There's no "official" api, but you easily could make a request to the `router.php` file to add a new paste or comment.
+### New Paste
+```
+POST router.php
+
+Request Parameters (all required)
+---------
+do=save
+content=yourpaste
+name=Your+name
+email=your@email.com
+language=php (optional, the autodetect is pretty good)
+
+Response
+-----------
+{"uid":"youruid"}
+```
+
+### New Comment
+```
+POST router.php
+
+Parameters (all required)
+---------
+do=saveComment
+uid=youruid
+line=linenumber
+comment=yourcomment
+user=Your+name
+email=your@email.com
+
+Response
+-----------
+{
+	"uid":"youruid",
+	"line":5,
+	"comment":"yourcomment",
+	"user_name":"Your name",
+	"user_email":"your@email.com",
+	"time":1661023034, // from php time() command
+	"color":"abc123" // color based on name of user
+}
+```
+
 ## Screenshots
 #### Home Page
 ![Home Page](screenshots/home.png)
@@ -38,6 +83,9 @@ This is very easy to configure. There is a `.config_sample.php` file with instru
 
 ## Contributing
 Throw in an issue and if necessary make a pull request. It's a pretty simple codebase!
+
+### Security
+Gasp! There's a security issue! If you find one, let me know. There probably are some improvements that can be made. Pull requests are cool too.
 
 ## Tips
 - If you are going to enable email, it would probably be best to put some controls in place to the paste board (such as only certain users can access the URL, HTTP Basic Auth, etc)

@@ -19,9 +19,6 @@ switch ($_REQUEST['do']) {
 	case 'load':
 		$json = $PasteManager->loadPaste($_REQUEST['uid']);
 		break;
-	case 'loadComments':
-		$json = $PasteManager->loadComments($_REQUEST['uid']);
-		break;
 	case 'saveComment':
 		$json = $PasteManager->saveComment($_REQUEST['uid'], (int) $_REQUEST['line'], $_REQUEST['comment'], $_REQUEST['user'], $_REQUEST['email']);
 		break;
