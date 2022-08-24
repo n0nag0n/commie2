@@ -14,13 +14,10 @@ if(isset($_REQUEST['uid'])) {
 
 switch ($_REQUEST['do']) {
 	case 'save':
-		$json = $PasteManager->savePaste($_REQUEST['content'], $_REQUEST['name'], $_REQUEST['email'], $_REQUEST['language']);
+		$json = $PasteManager->savePaste($_REQUEST['content'], $_REQUEST['name'], $_REQUEST['email'], ($_REQUEST['language'] ?? ''));
 		break;
 	case 'load':
 		$json = $PasteManager->loadPaste($_REQUEST['uid']);
-		break;
-	case 'loadComments':
-		$json = $PasteManager->loadComments($_REQUEST['uid']);
 		break;
 	case 'saveComment':
 		$json = $PasteManager->saveComment($_REQUEST['uid'], (int) $_REQUEST['line'], $_REQUEST['comment'], $_REQUEST['user'], $_REQUEST['email']);
