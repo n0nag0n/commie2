@@ -1,0 +1,8 @@
+<form class="new_comment_form" hx-post="/{$uid}/save-comment/{$line_number}" hx-target="#L{$line_number} .comments" hx-swap="beforeend" _="on htmx:afterRequest remove me">
+	<textarea name="comment" required></textarea><br>
+	<label>Your Name: <input type="text" name="name" value="{$name}" required></label>
+	<label>Your Email: <input type="email" name="email" value="{$email}" required></label>
+	<img class="htmx-indicator loader" src="lib/loading.gif">
+	<button _="on click remove closest .new_comment_form halt the event">Cancel</button>
+	<button type="submit">Save</button>
+</div>

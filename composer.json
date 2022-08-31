@@ -4,6 +4,8 @@
         "snipworks/php-smtp": "^2.0",
         "defuse/php-encryption": "^2.3",
         "cebe/markdown": "^1.2",
-        "northys/css-inliner": "v1.0-beta"
-    }
+        "latte/latte": "^2.11",
+        "bcosca/fatfree-core": "^3.8",
+        "tijsverkoyen/css-to-inline-styles": "^2.2"
+	}
 }

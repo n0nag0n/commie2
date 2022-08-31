@@ -1,0 +1,31 @@
+{if $author}
+<h2 id="author">{$author} pasted this on <span class="utc-time">{$time|date:'d-M-Y g:i a T'}</span></h2>
+{/if}
+<div id="paste-container" {$preview_html ? 'style="width: 49.5%; display:inline-block;"' |noescape}>
+    <div id="paste">
+        {if !$content}
+        <pre>
+                                _         ___  
+         __  ___  _ __   _ __  (_) ___   |_  ) 
+        / _|/ _ \| '  \ | '  \ | |/ -_)   / /  
+        \__|\___/|_|_|_||_|_|_||_|\___|  /___| 
+
+
+        commie2 is a pastebin script with line commenting support.
+        available at <a href="https://github.com/n0nag0n/commie">github</a>. originally made by <a href="http://www.splitbrain.org">splitbrain</a> modified by <a href="https://github.com/n0nag0n">n0nag0n</a>.
+
+
+
+
+        </pre>
+        {else}
+        {$highlighted_content|noescape}
+        {/if}
+    </div>
+	{if $content}
+    <div id="help">☛ Hover over the line and click the pencil to comment</div>
+	{/if}
+</div>
+<div id="preview-container" style="{!$preview_html ? 'display:none' |noescape}">
+    <div id="preview">{$preview_html}</div>
+</div>

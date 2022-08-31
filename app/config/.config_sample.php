@@ -11,5 +11,6 @@ return [
 		'from_email' => 'commie@example.com',
 		'from_name' => 'Commie Bot'
 	],
-	'encryption_key' => '' // run vendor/bin/generate-defuse-key and copy value here
+	'encryption_key' => '', // run vendor/bin/generate-defuse-key and copy value here
+	'api_key' => '' // you can run vendor/bin/generate-defuse-key to also generate a unique api key
 ];

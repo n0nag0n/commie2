@@ -1,19 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace n0nag0n\paste;
+namespace logic;
 
+use Base;
+use DateTime;
+use DateTimeZone;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 use Exception;
 use Highlight\Highlighter;
 use Northys\CSSInliner\CSSInliner;
-use Parsedown;
 use Snipworks\Smtp\Email;
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 use function HighlightUtilities\splitCodeIntoArray;
 
-class PasteManager {
+class Paste_Logic {
 
 	/** @var string */
 	protected $savedir;
@@ -21,12 +24,15 @@ class PasteManager {
 	/** @var array<string, mixed> */
 	protected $config;
 
+	protected Base $f3;
+
 	/**
 	 * Construct
 	 */
-	public function __construct() {
-		$this->savedir = __DIR__ . '/../data/';
-		$this->config = require(__DIR__ . '/../.config.php');
+	public function __construct(Base $f3) {
+		$this->f3 = $f3;
+		$this->savedir = __DIR__ . '/../../data/';
+		$this->config = $f3->config;
 	}
 
 	/**
@@ -54,23 +60,12 @@ class PasteManager {
 			'time' => time(), 
 			'comments' => [] 
 		])) {
-			return json_encode([ 'uid' => $uid ], JSON_UNESCAPED_SLASHES);
+			$thirty_days = (time() + (60 * 60 * 24 * 30));
+			$this->f3->set('COOKIE.name', $name, $thirty_days);
+			$this->f3->set('COOKIE.email', $email, $thirty_days);
+			return [ 'uid' => $uid ];
 		}
 		return false;
-	}
-
-	/**
-	 * Loads a paste file
-	 *
-	 * @param $uid
-	 * @return bool|string the paste's content, false on error
-	 */
-	public function loadPaste($uid) {
-		$path = $this->getDataFilePath($uid, 'paste');
-		if(!file_exists($path)) {
-			return false;
-		}
-		return json_encode($this->getFileContentsAsObject($path, true), JSON_UNESCAPED_SLASHES);
 	}
 
 	/**
@@ -79,32 +74,39 @@ class PasteManager {
 	 * @param string $uid
 	 * @param int $line
 	 * @param string $comment
-	 * @param string $user_name
-	 * @param string $user_email
+	 * @param string $name
+	 * @param string $email
 	 * @return bool|array
 	 */
-	public function saveComment(string $uid, int $line, string $comment, string $user_name, string $user_email) {
+	public function saveComment(string $uid, int $line, string $comment, string $name, string $email) {
 		$paste_path = $this->getDataFilePath($uid, 'paste');
 		if(!file_exists($paste_path)) {
 			return false;
 		}
+		
+		$paste = $this->getFileContentsAsObject($uid);
 
-		$paste = $this->getFileContentsAsObject($paste_path);
+		$comment = htmlspecialchars($comment);
 
-		if($this->config['enable_smtp'] === true && $this->checkValidEmail($paste->email) === true) {
-			$this->sendCommentReplyEmail($paste, $comment, $user_name, $user_email, $line);
-		}
-
-		$data = compact('uid', 'line', 'comment', 'user_name', 'user_email');
+		$data = compact('uid', 'line', 'comment', 'name', 'email');
 		$data['time'] = time();
-		$data['color'] = substr(md5($user_name),0,6);
+		$data['color'] = substr(md5($name),0,6);
 		if(!isset($paste->comments)) {
 			$paste->comments = [];
 		}
-		$paste->comments[] = $data;
+		$paste->comments[] = (object) $data;
 		if($this->saveFileContentsFromObject($paste_path, $paste)) {
 			$data['comment'] = $this->convertMarkdownToInlineHtml($data['comment']);
-			return json_encode($data, JSON_UNESCAPED_SLASHES);
+
+			if($this->config['enable_smtp'] === true && $this->checkValidEmail($paste->email) === true) {
+				$this->sendCommentReplyEmail($paste, $comment, $name, $email, $line);
+			}
+
+			$thirty_days = (time() + (60 * 60 * 24 * 30));
+			$this->f3->set('COOKIE.name', $name, $thirty_days);
+			$this->f3->set('COOKIE.email', $email, $thirty_days);
+
+			return $data;
 		}
 		return false;
 	}
@@ -122,30 +124,16 @@ class PasteManager {
 	/**
 	 * Gets file contents as object
 	 *
-	 * @param string $file_path [description]
+	 * @param string $uid uid of the paste
 	 * @return stdClass
 	 */
-	protected function getFileContentsAsObject(string $file_path, bool $add_highlight = false) {
+	public function getFileContentsAsObject(string $uid, bool $add_highlight = false) {
+		$file_path = $this->getDataFilePath($uid, 'paste');
+		if(file_exists($file_path) !== true) {
+			throw new Exception('Unable to find paste');
+		}
 		$paste = json_decode(Crypto::decrypt(file_get_contents($file_path), Key::loadFromAsciiSafeString($this->config['encryption_key'])));
 		if($add_highlight === true) {
-			// $Highlighter = new Highlighter();
-			// if(empty($paste->language)) {
-			// 	$Highlighter->setAutodetectLanguages([
-			// 		'php', 'sql', 'markdown', 'diff', 'javascript', 'json', 'bash', 'css', 'go', 'xml', 'ini', 'apache',  'plaintext'
-			// 	]);
-			// 	$highlighted = $Highlighter->highlightAuto($paste->content);
-			// } else {
-			// 	$highlighted = $Highlighter->highlight($paste->language, $paste->content);
-			// }
-
-			// $lines = splitCodeIntoArray($highlighted->value);
-			// $html = '<div class="hljs"><ol class="linenums">';
-			// foreach($lines as $line_number => $line) {
-			// 	$html .= '<li id="L'.$line_number.'" class="L0"><pre><code class="'.$highlighted->language.'">'.$line.'</code></pre></li>';
-			// }
-			// $html .= '</ol></div>';
-			// $paste->highlighted_content = $html;
-
 			$highlighted_result = $this->highlightText($paste);
 			$paste->highlighted_content = $highlighted_result['highlighted_content'];
 			$paste->highlighted_language = $highlighted_result['highlighted_language'];
@@ -171,24 +159,6 @@ class PasteManager {
 	protected function saveFileContentsFromObject(string $file_path, $contents) {
 		return file_put_contents($file_path, Crypto::encrypt(json_encode($contents, JSON_UNESCAPED_SLASHES), Key::loadFromAsciiSafeString($this->config['encryption_key'])));
 	}
-
-	/**
-	 * Return all comments
-	 *
-	 * @param string $uid
-	 * @return array|bool
-	 */
-	// public function loadComments(string $uid) {
-	// 	$paste_path = $this->getDataFilePath($uid, 'paste');
-	// 	if(!file_exists($paste_path)) {
-	// 		return false;
-	// 	}
-
-	// 	$paste = $this->getFileContentsAsObject($paste_path);
-
-		
-	// 	return json_encode($paste->comments);
-	// }
 
 	/**
 	 * Get the full path to the file for the given UID and extension
@@ -237,11 +207,11 @@ class PasteManager {
 		if($this->config['enable_smtp'] !== true) {
 			throw new Exception('You need to enable_smtp to be true with proper configs to send emails');
 		}
-
-		$before_content = $this->generateBeforeCommentInsight($paste, $line);
-		$after_content = $this->generateAfterCommentInsight($paste, $line);
-		$comment_color = substr(md5($comment_user_name),0,6);
-		$prepared_comment = '<div class="email-comment" style="border-color: #'.$comment_color.'">Comment: '.$this->convertMarkdownToInlineHtml($comment).'</div>';
+		// $before_content = $this->generateBeforeCommentInsight($paste, $line);
+		// $after_content = $this->generateAfterCommentInsight($paste, $line);
+		// $comment_color = substr(md5($comment_user_name),0,6);
+		$content = $this->generateCommentInsightChunk($paste, $line);
+		//$prepared_comment = '<div class="email-comment" style="border-color: #'.$comment_color.'">Comment: '.$this->convertMarkdownToInlineHtml($comment).'</div>';
 		$Smtp = new Email($this->config['smtp']['host'], $this->config['smtp']['port']);
 		$Smtp->setLogin($this->config['smtp']['username'], $this->config['smtp']['password']);
 		$Smtp->addTo($paste->email);
@@ -249,7 +219,7 @@ class PasteManager {
 		$Smtp->addReplyTo($comment_user_email);
 		$Smtp->setProtocol(Email::TLS);
 		$Smtp->setSubject('You have a new paste comment!');
-		$html = <<<EOT
+		$html = <<<HTML
 <html>
 	<head>
 		<title>You have a new paste comment!</title>
@@ -263,28 +233,34 @@ class PasteManager {
 		<div id="email_body">
 			<p>Hi there,</p>
 			<p>{$comment_user_name} wants you to talk smack about their code. Here is what they said:</p>
-			{$before_content}
-			{$prepared_comment}
-			{$after_content}
+			<div id="paste">
+				{$content}
+			</div>
 			<p>You can view this comment directly on the page by clicking <a href="{$this->config['app_base_url']}#{$paste->uid}">here</a>.</p>
 			<p>Hope you have a nice day!</p>
 			<p>Commie Bot</p>
 		</div>
 	</body>
 </html>
-EOT;
+HTML;
 
 		// Disable some crappy errors
-		$internalErrors = libxml_use_internal_errors(true);
-		$css_inliner = new CSSInliner;
-		$css_inliner->addCSS(__DIR__.'/../public/lib/style.css');
-		$css_inliner->addCSS(__DIR__.'/../public/lib/sunburst.css');
-		$html = $css_inliner->render($html);
-		// Re-enable crappy errors
-		libxml_use_internal_errors($internalErrors);
+		// $internalErrors = libxml_use_internal_errors(true);
+		// $css_inliner = new CSSInliner;
+		// $css_inliner->addCSS(__DIR__.'/../../public/lib/style.css');
+		// $css_inliner->addCSS(__DIR__.'/../../public/lib/sunburst.css');
+		// $html = $css_inliner->render($html);
+		// // Re-enable crappy errors
+		// libxml_use_internal_errors($internalErrors);
 
+		$css = file_get_contents(__DIR__.'/../../public/lib/style.css')."\n".
+			file_get_contents(__DIR__.'/../../public/lib/sunburst.css');
+
+		$CssToInlineStyles = new CssToInlineStyles;
+		$html = $CssToInlineStyles->convert($html, $css);
 		$Smtp->setHtmlMessage($html);
 		$send_result = $Smtp->send();
+		//$send_result = true;
 		return (bool) $send_result;
 	}
 
@@ -295,21 +271,20 @@ EOT;
 	 * @param integer $line           line
 	 * @return string
 	 */
-	public function generateBeforeCommentInsight($paste, int $line): string {
+	public function generateCommentInsightChunk($paste, int $line): string {
+		$line_count = count(explode("\n", $paste->content));
 		if($line - 5 < 0) {
 			$cutting_line = 0;
 			$ending_line = $line;
+		} else if($line + 5 > $line_count) {
+			$cutting_line = $line_count - ($line_count - $line);
+			$ending_line = $line_count;
 		} else {
-			$cutting_line = $line - 4;
-			$ending_line = 5;
+			$cutting_line = $line - 5;
+			$ending_line = 10;
 		}
 		$starting_number = $cutting_line + 1;
 		return $this->highlightText($paste, $starting_number, $cutting_line, $ending_line)['highlighted_content'];
-		// $before_content = array_slice($array_of_lines, $cutting_line, $ending_line);
-		// for($current_line = $cutting_line + 1, $i = 0; $i < count($before_content) ; ++$i, ++$current_line) {
-		// 	$before_content[$i] = str_pad($current_line.'.', 5, ' ', STR_PAD_LEFT).$before_content[$i];
-		// }
-		// return join("\n", $before_content);
 	}
 
 	/**
@@ -319,24 +294,18 @@ EOT;
 	 * @param integer   $line  line
 	 * @return string
 	 */
-	public function generateAfterCommentInsight($paste, int $line): string {
-		$line_count = count(explode("\n", $paste->content));
-		if($line + 5 > $line_count) {
-			$cutting_line = $line_count - ($line_count - $line);
-			$ending_line = $line_count;
-		} else {
-			$cutting_line = $line + 1;
-			$ending_line = 5;
-		}
-		$starting_number = $cutting_line + 1;
-		return $this->highlightText($paste, $starting_number, $cutting_line, $ending_line)['highlighted_content'];
-		// $after_content = array_slice($array_of_lines, $cutting_line, $ending_line);
-		// for($current_line = $cutting_line + 1, $i = 0; $i < count($after_content) ; ++$i, ++$current_line) {
-		// 	$after_content[$i] = str_pad($current_line.'.', 5, ' ', STR_PAD_LEFT).$after_content[$i];
-		// }
-
-		// return join("\n", $after_content);
-	}
+	// public function generateAfterCommentInsight($paste, int $line): string {
+	// 	$line_count = count(explode("\n", $paste->content));
+	// 	if($line + 5 > $line_count) {
+	// 		$cutting_line = $line_count - ($line_count - $line);
+	// 		$ending_line = $line_count;
+	// 	} else {
+	// 		$cutting_line = $line + 1;
+	// 		$ending_line = 5;
+	// 	}
+	// 	$starting_number = $cutting_line;
+	// 	return $this->highlightText($paste, $starting_number, $cutting_line, $ending_line)['highlighted_content'];
+	// }
 
 	/**
 	 * Highlights the text
@@ -357,12 +326,51 @@ EOT;
 		$lines = splitCodeIntoArray($highlighted->value);
 
 		if($slice_key_offset !== null && $slice_length !== null) {
-			$lines = array_slice($lines, $slice_key_offset, $slice_length);
+			$lines = array_slice($lines, $slice_key_offset, $slice_length, true);
+		}
+
+		$comments_by_line = [];
+		if($paste->comments) {
+			
+			foreach($paste->comments as $comment) {
+				$comments_by_line[$comment->line][] = $comment;
+			}
 		}
 
 		$html = '<div class="hljs"><ol class="linenums" start="'.$line_starting_number.'">';
 		foreach($lines as $line_number => $line) {
-			$html .= '<li id="L'.$line_number.'" class="L0"><pre><code class="'.$highlighted->language.'">'.$line.'</code></pre></li>';
+			$real_line_number = $line_number + 1;
+
+			$comment_html = '';
+			if(isset($comments_by_line[$real_line_number])) {
+				foreach($comments_by_line[$real_line_number] as $comment_line) {
+					$template_vars = [
+						'comment' => $this->convertMarkdownToInlineHtml($comment_line->comment),
+						'color' => $comment_line->color,
+						'time' => (new DateTime('@'.$comment_line->time, new DateTimeZone($this->getTimeZone()))),
+						'name' => $comment_line->name
+					];
+					$comment_html .= $this->f3->Latte->renderToString(__DIR__.'/../views/comment.latte', $template_vars);
+				}
+			}
+			$html .= <<<HTML
+<li 
+	id="L{$real_line_number}" 
+	class="line-number" 
+>
+	<span class="edit" hx-get="/{$paste->uid}/get-comment-form/{$real_line_number}" 
+	hx-target="#L{$real_line_number} .comment-form-container"
+	_="on htmx:beforeRequest 
+		if .new_comment_form.innerHTML.length > 0
+			halt the event
+		end
+	   end"
+	>&#9998;</span> 
+	<pre><code class="{$highlighted->language}">{$line}</code></pre>
+	<div class="comment-form-container"></div>
+	<div class="comments">{$comment_html}</div>
+</li>
+HTML;
 		}
 		$html .= '</ol></div>';
 		return [ 
@@ -379,6 +387,33 @@ EOT;
 	 */
 	public function convertMarkdownToInlineHtml(string $text): string {
 		$parser = new \cebe\markdown\GithubMarkdown();
-		return $parser->parse($text);
+		$parser->html5 = true;
+		$parsed_text = $parser->parse($text); 
+		// this undoes some of the htmlspecialchars() that was done by the plugin to display properly.
+		$parsed_text = preg_replace_callback("~(<pre><code>|<code>)([\s\S]+)(</code></pre>|</code>)~iUm", function($matches) {
+			return $matches[1].htmlspecialchars_decode($matches[2]).$matches[3];
+		}, $parsed_text);
+		return $parsed_text;
+	}
+
+	/**
+	 * Gets the time zone from a geo ip api endpoint if it's not in session
+	 *
+	 * @param string $ip_address [description]
+	 * @return string
+	 */
+	public function getTimeZone(string $ip_address = ''): string {
+		
+		// Pull out time zone data
+		if(empty($this->f3->COOKIE['time_zone'])) {
+
+			if(empty($ip_address)) {
+				$ip_address = $this->f3->IP;
+			}
+
+			$data = json_decode($this->f3->read('https://geo-ip.io/1.0/ip/'.$ip_address), true);
+			$this->f3->COOKIE['time_zone'] = $data['timezone'] ?? 'UTC';
+		}
+		return $this->f3->COOKIE['time_zone'];
 	}
 }

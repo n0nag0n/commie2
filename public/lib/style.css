@@ -4,24 +4,37 @@ body {
 	font-family: sans-serif;
 }
 
-.sickle {
-	font-family: sans-serif;
-	font-size: 120%;
-}
-
 a {
 	color: #0af;
 	text-decoration: none;
 }
 
 /* line number for each line */
-li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
+#paste li.line-number {
 	list-style-type: decimal !important;
-	cursor: pointer;
 	font-family: monospace;
 }
 
-li div.comment, #email_body .email-comment {
+#paste li.line-number pre {
+	display: inline-block;
+}
+
+#paste li.line-number span.edit {
+	visibility: hidden;
+	color: orange;
+	cursor: pointer;
+}
+
+#email_body span.edit {
+	display: none !important;
+}
+
+#paste li.line-number:hover span.edit {
+	visibility: visible;
+}
+
+
+#paste li div.comment {
 	margin: 0.2em 0 0.3em 0;
 	padding: 0.5em;
 	background-color: #555;
@@ -32,44 +45,39 @@ li div.comment, #email_body .email-comment {
 	white-space: normal;
 }
 
-li div.comment div.user {
+#paste li div.comment div.user {
 	float: right;
 	font-style: italic;
 	font-size: 95%;
 }
 
-li div.newcomment {
+#paste li form.new_comment_form {
 	max-width: 81em;
 	width: 100%;
 }
 
-li div.newcomment textarea {
+#paste li form.new_comment_form textarea {
 	width: 100%;
 	height: 5em;
 	margin-bottom: 0.1em;
 }
 
-li div.newcomment button {
+#paste li form.new_comment_form button {
 	float: right;
 }
 
-
-#help {
-	display: none;
-}
-
-#new {
+#new_paste_form {
 	margin-top: 4em;
 	margin-left: 2.5em;
 	margin-bottom: 8em;
 }
 
-#new label {
+#new_paste_form label {
 	display: block;
 	margin-bottom: 0.5em;
 }
 
-#new textarea {
+#new_paste_form textarea {
 	max-width: 79em;
 	width: 100%;
 	height: 7em;
@@ -108,7 +116,7 @@ li div.newcomment button {
 }
 
 #paste-container {
-	display: inline-block;
+	/* display: inline-block; */
 	vertical-align: top;
 }
 
@@ -116,4 +124,11 @@ li div.newcomment button {
 	width: 49.5%;
 	display: inline-block;
 	vertical-align: top;
+}
+
+.loader {
+	position: fixed;
+	top: 5px;
+	right: 5px;
+	opacity: 0;
 }

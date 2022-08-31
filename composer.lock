@@ -4,8 +4,43 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "51448ffaa0f16b7ab2725ddee70a1468",
+    "content-hash": "3728267e74db42fecd972bba0943a884",
     "packages": [
+        {
+            "name": "bcosca/fatfree-core",
+            "version": "3.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bcosca/fatfree-core.git",
+                "reference": "cdd878db018280369b643fce62f70e55044f9ac4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bcosca/fatfree-core/zipball/cdd878db018280369b643fce62f70e55044f9ac4",
+                "reference": "cdd878db018280369b643fce62f70e55044f9ac4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "."
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "description": "A powerful yet easy-to-use PHP micro-framework designed to help you build dynamic and robust Web applications - fast!",
+            "homepage": "http://fatfreeframework.com/",
+            "support": {
+                "issues": "https://github.com/bcosca/fatfree-core/issues",
+                "source": "https://github.com/bcosca/fatfree-core/tree/3.8.0"
+            },
+            "time": "2022-02-15T16:59:01+00:00"
+        },
         {
             "name": "cebe/markdown",
             "version": "1.2.1",
@@ -137,57 +172,88 @@
             "time": "2021-04-09T23:57:26+00:00"
         },
         {
-            "name": "northys/css-inliner",
-            "version": "v1.0-beta",
+            "name": "latte/latte",
+            "version": "v2.11.5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Northys/CSS-Inliner.git",
-                "reference": "8f92e783f84aa0db487ad7d9d807d6f6ef721ead"
+                "url": "https://github.com/nette/latte.git",
+                "reference": "89e647e51213af8a270fe9903b8735a2f6c83ad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Northys/CSS-Inliner/zipball/8f92e783f84aa0db487ad7d9d807d6f6ef721ead",
-                "reference": "8f92e783f84aa0db487ad7d9d807d6f6ef721ead",
+                "url": "https://api.github.com/repos/nette/latte/zipball/89e647e51213af8a270fe9903b8735a2f6c83ad1",
+                "reference": "89e647e51213af8a270fe9903b8735a2f6c83ad1",
                 "shasum": ""
             },
             "require": {
-                "sabberworm/php-css-parser": "7.0.*",
-                "symfony/css-selector": "~2.7"
+                "ext-json": "*",
+                "ext-tokenizer": "*",
+                "php": ">=7.1 <8.2"
+            },
+            "conflict": {
+                "nette/application": "<2.4.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "4.*"
+                "nette/php-generator": "^3.3.4",
+                "nette/tester": "^2.0",
+                "nette/utils": "^3.0",
+                "phpstan/phpstan": "^1",
+                "tracy/tracy": "^2.3"
             },
+            "suggest": {
+                "ext-fileinfo": "to use filter |datastream",
+                "ext-iconv": "to use filters |reverse, |substring",
+                "ext-mbstring": "to use filters like lower, upper, capitalize, ...",
+                "nette/php-generator": "to use tag {templatePrint}",
+                "nette/utils": "to use filter |webalize"
+            },
+            "bin": [
+                "bin/latte-lint"
+            ],
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "2.11-dev"
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Northys\\CSSInliner\\": "src/"
-                },
                 "classmap": [
                     "src/"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL"
+                "BSD-3-Clause",
+                "GPL-2.0-only",
+                "GPL-3.0-only"
             ],
             "authors": [
                 {
-                    "name": "Jiri Travnicek",
-                    "email": "jiri.travnicek@outlook.com",
-                    "role": "Developer"
+                    "name": "David Grudl",
+                    "homepage": "https://davidgrudl.com"
+                },
+                {
+                    "name": "Nette Community",
+                    "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "PHP Library that converts css file into html inline styles.",
+            "description": "☕ Latte: the intuitive and fast template engine for those who want the most secure PHP sites. Introduces context-sensitive escaping.",
+            "homepage": "https://latte.nette.org",
+            "keywords": [
+                "context-sensitive",
+                "engine",
+                "escaping",
+                "html",
+                "nette",
+                "security",
+                "template",
+                "twig"
+            ],
             "support": {
-                "issues": "https://github.com/Northys/CSS-Inliner/issues",
-                "source": "https://github.com/Northys/CSS-Inliner/tree/master"
+                "issues": "https://github.com/nette/latte/issues",
+                "source": "https://github.com/nette/latte/tree/v2.11.5"
             },
-            "time": "2015-09-29T00:10:16+00:00"
+            "time": "2022-06-26T10:12:18+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -238,51 +304,6 @@
                 "source": "https://github.com/paragonie/random_compat"
             },
             "time": "2020-10-15T08:29:30+00:00"
-        },
-        {
-            "name": "sabberworm/php-css-parser",
-            "version": "7.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sabberworm/PHP-CSS-Parser.git",
-                "reference": "7f81cfd7c81a6f6f5ec46571b587a206141a58bb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sabberworm/PHP-CSS-Parser/zipball/7f81cfd7c81a6f6f5ec46571b587a206141a58bb",
-                "reference": "7f81cfd7c81a6f6f5ec46571b587a206141a58bb",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Sabberworm\\CSS": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Raphael Schweikert"
-                }
-            ],
-            "description": "Parser for CSS Files written in PHP",
-            "homepage": "http://www.sabberworm.com/blog/2010/6/10/php-css-parser",
-            "keywords": [
-                "css",
-                "parser",
-                "stylesheet"
-            ],
-            "support": {
-                "issues": "https://github.com/sabberworm/PHP-CSS-Parser/issues",
-                "source": "https://github.com/sabberworm/PHP-CSS-Parser/tree/7.0.4"
-            },
-            "time": "2020-06-01T09:08:05+00:00"
         },
         {
             "name": "scrivo/highlight.php",
@@ -453,14 +474,65 @@
                 "source": "https://github.com/symfony/css-selector/tree/v2.8.52"
             },
             "time": "2018-11-11T11:18:13+00:00"
+        },
+        {
+            "name": "tijsverkoyen/css-to-inline-styles",
+            "version": "2.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tijsverkoyen/CssToInlineStyles.git",
+                "reference": "da444caae6aca7a19c0c140f68c6182e337d5b1c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tijsverkoyen/CssToInlineStyles/zipball/da444caae6aca7a19c0c140f68c6182e337d5b1c",
+                "reference": "da444caae6aca7a19c0c140f68c6182e337d5b1c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "php": "^5.5 || ^7.0 || ^8.0",
+                "symfony/css-selector": "^2.7 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0 || ^7.5 || ^8.5.21 || ^9.5.10"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TijsVerkoyen\\CssToInlineStyles\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Tijs Verkoyen",
+                    "email": "css_to_inline_styles@verkoyen.eu",
+                    "role": "Developer"
+                }
+            ],
+            "description": "CssToInlineStyles is a class that enables you to convert HTML-pages/files into HTML-pages/files with inline styles. This is very useful when you're sending emails.",
+            "homepage": "https://github.com/tijsverkoyen/CssToInlineStyles",
+            "support": {
+                "issues": "https://github.com/tijsverkoyen/CssToInlineStyles/issues",
+                "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/2.2.4"
+            },
+            "time": "2021-12-08T09:12:39+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "northys/css-inliner": 10
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

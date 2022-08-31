@@ -1,0 +1,114 @@
+<?php
+declare(strict_types=1);
+
+namespace controller;
+
+use Base;
+use DateTime;
+use DateTimeZone;
+use logic\Paste_Logic;
+use Web;
+
+class Paste_Controller {
+
+	protected Paste_Logic $Paste_Logic;
+
+	public function __construct(Base $f3) {
+		$this->Paste_Logic = new Paste_Logic($f3);	
+	}
+
+	/**
+	 * Loads a paste file
+	 *
+	 * @param $uid
+	 * @return bool|string the paste's content, false on error
+	 */
+	public function load(Base $f3, array $args) {
+
+		$template_vars = [
+			'name' => $_COOKIE['name'],
+			'email' => $_COOKIE['email'],
+			'page_title' => 'Home - Create a new paste'
+		];
+
+		if($args['uid']) {
+			$time_zone = $this->Paste_Logic->getTimeZone();
+			
+			$Paste = $this->Paste_Logic->getFileContentsAsObject($args['uid'], true);
+			$template_vars = [
+				'highlighted_content' => $Paste->highlighted_content,
+				'content' => $Paste->content,
+				'preview_html' => $Paste->preview_html,
+				'author' => $Paste->name,
+				'time' => (new DateTime('@'.$Paste->time, new DateTimeZone($time_zone))),
+				'page_title' => 'Paste by '.$Paste->name.' ('.$args['uid'].')'
+			] + $template_vars;
+		}
+
+		echo $f3->Latte->render(__DIR__.'/../views/index.latte', $template_vars);
+	}
+
+	public function savePaste(Base $f3, array $args) {
+		$post = $f3->clean($f3->POST);
+		$save_result = $this->Paste_Logic->savePaste($f3->POST['content'], $post['name'], $post['email'], ($post['language'] ?? ''));
+		$Paste = $this->Paste_Logic->getFileContentsAsObject($save_result['uid'], true);
+
+		$time_zone = $this->Paste_Logic->getTimeZone();
+
+		// sets the url
+		header('HX-Push: '.$Paste->uid);
+		$template_vars = [
+			'highlighted_content' => $Paste->highlighted_content,
+			'content' => $Paste->content,
+			'preview_html' => $Paste->preview_html,
+			'author' => $Paste->name,
+			'time' => (new DateTime('@'.$Paste->time, new DateTimeZone($time_zone))),
+		];
+		echo $f3->Latte->render(__DIR__.'/../views/paste_content.latte', $template_vars);
+	}
+
+	public function getCommentForm(Base $f3, array $args) {
+		echo $f3->Latte->render(__DIR__.'/../views/comment_form.latte', $args + $_COOKIE);
+	}
+
+	public function saveComment(Base $f3, array $args) {
+
+		$post = $f3->clean($f3->POST);
+		$save_result = $this->Paste_Logic->saveComment($args['uid'], (int) $args['line_number'], $f3->POST['comment'], $post['name'], ($post['email'] ?? ''));
+
+		$time_zone = $this->Paste_Logic->getTimeZone();
+
+		$template_vars = [
+			'comment' => $save_result['comment'],
+			'color' => $save_result['color'],
+			'time' => (new DateTime('@'.$save_result['time'], new DateTimeZone($time_zone))),
+			'name' => $save_result['name']
+		];
+		echo '<div hx-swap-oob="afterbegin:#L'.$args['line_number'].' .comments">'.$f3->Latte->render(__DIR__.'/../views/comment.latte', $template_vars).'</div>';
+	}
+
+	public function js(Base $f3, array $args) {
+		$contents = $f3->read(__DIR__.'/../../public/lib/htmx-1.8.0.min.js')."\n";
+		$contents .= $f3->read(__DIR__.'/../../public/lib/hyperscript-0.9.7.min.js')."\n";
+
+		$f3->expire(21600);
+		if(strpos($f3->HEADERS['Accept-Encoding'], 'gzip') !== false) {
+			header('Content-Encoding: gzip');
+			$contents = gzencode($contents, 9);
+		}
+		header('Content-Type: text/javascript');
+		echo $contents;
+	}
+
+	public function css(Base $f3, array $args) {
+		$contents = Web::instance()->minify([ 'style.css', 'sunburst.css' ], null, false, realpath(__DIR__.'/../../public/lib/').'/');
+		$f3->expire(21600);
+		if(strpos($f3->HEADERS['Accept-Encoding'], 'gzip') !== false) {
+			header('Content-Encoding: gzip');
+			$contents = gzencode($contents, 9);
+		}
+		header('Content-Type: text/css');
+		echo $contents;
+	}
+
+}

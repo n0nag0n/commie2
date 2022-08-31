@@ -1,0 +1,30 @@
+<form id="new_paste_form" hx-post="/save-paste" hx-target="#page_container" _="on submit go to the top of the body smoothly">
+	<img class="htmx-indicator loader" src="lib/loading.gif">
+	<label for="content">Create a new paste:</label><br>
+	<textarea id="content" name="content" cols="80" rows="10" required>{$content}</textarea><br/><br/>
+	<label for="name">Name: </label>
+	<input type="text" id="name" name="name" placeholder="Your Name" value="{$name}" required><br/><br/>
+	<label for="email">Email: </label>
+	<input type="email" id="email" name="email" placeholder="Email Address" value="{$email}" required><br/><br/>
+	<label for="language">Language: </label>
+	<select id="language" name="language">
+		<option value="">Autodetect</option>
+		<option value="apache">Apache Config</option>
+		<option value="bash">Bash/Shell</option>
+		<option value="css">CSS</option>
+		<option value="diff">Diff</option>
+		<option value="go">Golang</option>
+		<option value="xml">HTML/XML</option>
+		<option value="ini">INI</option>
+		<option value="javascript">JavaScript</option>
+		<option value="json">JSON</option>
+		<option value="markdown">Markdown</option>
+		<option value="php">PHP</option>
+		<option value="plaintext">Plain Text</option>
+		<option value="sql">SQL</option>
+	</select>
+	<br>
+	<br>
+	<button type="submit">Create!</button>
+</form>
+<p>Remember: everything is public!</p>
