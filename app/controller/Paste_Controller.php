@@ -13,22 +13,29 @@ class Paste_Controller {
 
 	protected Paste_Logic $Paste_Logic;
 
+	/**
+	 * Construct
+	 *
+	 * @param Base $f3 f3 class
+	 */
 	public function __construct(Base $f3) {
 		$this->Paste_Logic = new Paste_Logic($f3);	
 	}
 
 	/**
-	 * Loads a paste file
+	 * Default index page, or loads a paste
 	 *
-	 * @param $uid
-	 * @return bool|string the paste's content, false on error
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
 	 */
 	public function load(Base $f3, array $args) {
 
 		$template_vars = [
 			'name' => $_COOKIE['name'],
 			'email' => $_COOKIE['email'],
-			'page_title' => 'Home - Create a new paste'
+			'page_title' => 'Home - Create a new paste',
+			'base_url' => $f3->BASE
 		];
 
 		if($args['uid']) {
@@ -48,6 +55,13 @@ class Paste_Controller {
 		echo $f3->Latte->render(__DIR__.'/../views/index.latte', $template_vars);
 	}
 
+	/**
+	 * Saves a paste from the UI
+	 *
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
+	 */
 	public function savePaste(Base $f3, array $args) {
 		$post = $f3->clean($f3->POST);
 		$save_result = $this->Paste_Logic->savePaste($f3->POST['content'], $post['name'], $post['email'], ($post['language'] ?? ''));
@@ -67,10 +81,24 @@ class Paste_Controller {
 		echo $f3->Latte->render(__DIR__.'/../views/paste_content.latte', $template_vars);
 	}
 
+	/**
+	 * Gets the comment form (self explanatory?)
+	 *
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
+	 */
 	public function getCommentForm(Base $f3, array $args) {
-		echo $f3->Latte->render(__DIR__.'/../views/comment_form.latte', $args + $_COOKIE);
+		echo $f3->Latte->render(__DIR__.'/../views/comment_form.latte', $args + $_COOKIE + [ 'base_url' => $f3->BASE ]);
 	}
 
+	/**
+	 * Saves a comment from the UI
+	 *
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
+	 */
 	public function saveComment(Base $f3, array $args) {
 
 		$post = $f3->clean($f3->POST);
@@ -87,6 +115,13 @@ class Paste_Controller {
 		echo '<div hx-swap-oob="afterbegin:#L'.$args['line_number'].' .comments">'.$f3->Latte->render(__DIR__.'/../views/comment.latte', $template_vars).'</div>';
 	}
 
+	/**
+	 * Merges and gzips and all the js files.
+	 *
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
+	 */
 	public function js(Base $f3, array $args) {
 		$contents = $f3->read(__DIR__.'/../../public/lib/htmx-1.8.0.min.js')."\n";
 		$contents .= $f3->read(__DIR__.'/../../public/lib/hyperscript-0.9.7.min.js')."\n";
@@ -100,6 +135,13 @@ class Paste_Controller {
 		echo $contents;
 	}
 
+	/**
+	 * Merges, minifies, and gzips all the css files
+	 *
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
+	 */
 	public function css(Base $f3, array $args) {
 		$contents = Web::instance()->minify([ 'style.css', 'sunburst.css' ], null, false, realpath(__DIR__.'/../../public/lib/').'/');
 		$f3->expire(21600);

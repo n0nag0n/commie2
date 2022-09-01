@@ -14,10 +14,21 @@ class Api_Controller {
 
 	protected array $api_result;
 
+	/**
+	 * Construct
+	 *
+	 * @param Base $f3 f3 class
+	 */
 	public function __construct(Base $f3) {
 		$this->Paste_Logic = new Paste_Logic($f3);	
 	}
 
+	/**
+	 * Runs before a class is executed
+	 *
+	 * @param Base  $f3   f3 class
+	 * @return void
+	 */
 	public function beforeRoute(Base $f3) {
 		if(empty($f3->config['api_key'])) {
 			$this->api_result = [ 'error' => 'api_key needs to be set in the config file.' ];
@@ -33,11 +44,24 @@ class Api_Controller {
 		}
 	}
 
+	/**
+	 * Runs after a route is found and executed
+	 *
+	 * @param Base  $f3   f3 class
+	 * @return void
+	 */
 	public function afterRoute(Base $f3) {
 		header('Content-Type: application/json');
 		echo json_encode($this->api_result, JSON_UNESCAPED_SLASHES);
 	}
 
+	/**
+	 * Saves a paste
+	 *
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
+	 */
 	public function savePaste(Base $f3, array $args) {
 
 		$required_fields = [ 'content', 'name', 'email' ];
@@ -53,6 +77,13 @@ class Api_Controller {
 		$this->api_result = $this->Paste_Logic->savePaste($f3->POST['content'], $post['name'], $post['email'], ($post['language'] ?? ''));
 	}
 
+	/**
+	 * Saves a comment
+	 *
+	 * @param Base  $f3   f3 class
+	 * @param array $args arg params
+	 * @return void
+	 */
 	public function saveComment(Base $f3, array $args) {
 		
 		$required_fields = [ 'comment', 'name', 'email' ];

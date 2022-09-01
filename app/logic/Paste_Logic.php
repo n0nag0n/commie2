@@ -207,11 +207,7 @@ class Paste_Logic {
 		if($this->config['enable_smtp'] !== true) {
 			throw new Exception('You need to enable_smtp to be true with proper configs to send emails');
 		}
-		// $before_content = $this->generateBeforeCommentInsight($paste, $line);
-		// $after_content = $this->generateAfterCommentInsight($paste, $line);
-		// $comment_color = substr(md5($comment_user_name),0,6);
 		$content = $this->generateCommentInsightChunk($paste, $line);
-		//$prepared_comment = '<div class="email-comment" style="border-color: #'.$comment_color.'">Comment: '.$this->convertMarkdownToInlineHtml($comment).'</div>';
 		$Smtp = new Email($this->config['smtp']['host'], $this->config['smtp']['port']);
 		$Smtp->setLogin($this->config['smtp']['username'], $this->config['smtp']['password']);
 		$Smtp->addTo($paste->email);
@@ -243,15 +239,6 @@ class Paste_Logic {
 	</body>
 </html>
 HTML;
-
-		// Disable some crappy errors
-		// $internalErrors = libxml_use_internal_errors(true);
-		// $css_inliner = new CSSInliner;
-		// $css_inliner->addCSS(__DIR__.'/../../public/lib/style.css');
-		// $css_inliner->addCSS(__DIR__.'/../../public/lib/sunburst.css');
-		// $html = $css_inliner->render($html);
-		// // Re-enable crappy errors
-		// libxml_use_internal_errors($internalErrors);
 
 		$css = file_get_contents(__DIR__.'/../../public/lib/style.css')."\n".
 			file_get_contents(__DIR__.'/../../public/lib/sunburst.css');
@@ -286,26 +273,6 @@ HTML;
 		$starting_number = $cutting_line + 1;
 		return $this->highlightText($paste, $starting_number, $cutting_line, $ending_line)['highlighted_content'];
 	}
-
-	/**
-	 * Generates the section of code after the comment
-	 *
-	 * @param \stdClass $paste paste
-	 * @param integer   $line  line
-	 * @return string
-	 */
-	// public function generateAfterCommentInsight($paste, int $line): string {
-	// 	$line_count = count(explode("\n", $paste->content));
-	// 	if($line + 5 > $line_count) {
-	// 		$cutting_line = $line_count - ($line_count - $line);
-	// 		$ending_line = $line_count;
-	// 	} else {
-	// 		$cutting_line = $line + 1;
-	// 		$ending_line = 5;
-	// 	}
-	// 	$starting_number = $cutting_line;
-	// 	return $this->highlightText($paste, $starting_number, $cutting_line, $ending_line)['highlighted_content'];
-	// }
 
 	/**
 	 * Highlights the text
@@ -399,7 +366,7 @@ HTML;
 	/**
 	 * Gets the time zone from a geo ip api endpoint if it's not in session
 	 *
-	 * @param string $ip_address [description]
+	 * @param string $ip_address an ip address
 	 * @return string
 	 */
 	public function getTimeZone(string $ip_address = ''): string {

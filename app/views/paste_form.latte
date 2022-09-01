@@ -1,4 +1,4 @@
-<form id="new_paste_form" hx-post="/save-paste" hx-target="#page_container" _="on submit go to the top of the body smoothly">
+<form id="new_paste_form" hx-post="{$base_url}/save-paste" hx-target="#page_container" _="on submit go to the top of the body smoothly">
 	<img class="htmx-indicator loader" src="lib/loading.gif">
 	<label for="content">Create a new paste:</label><br>
 	<textarea id="content" name="content" cols="80" rows="10" required>{$content}</textarea><br/><br/>
