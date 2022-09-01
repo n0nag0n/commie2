@@ -223,6 +223,11 @@ class Paste_Logic {
 			unset($emails[$array_key]);
 		}
 
+		// technically it did it's job. It send an email to 0 people.
+		if(count($emails) === 0) {
+			return true;
+		}
+
 		$content = $this->generateCommentInsightChunk($paste, $line);
 		$Smtp = new Email($this->config['smtp']['host'], $this->config['smtp']['port']);
 		$Smtp->setLogin($this->config['smtp']['username'], $this->config['smtp']['password']);
