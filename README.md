@@ -26,7 +26,7 @@ To install, simply clone this repo and configure your webserver to point to the 
 This is very easy to configure. There is a `.config_sample.php` file with instructions on how to enable emailing, encryption, and other settings. Copy or rename this file to `.config.php` and you're on your way!
 
 ## API
-The API is simple to use and make new pastes to. You authenticate by sending an `Authorization: Bearer apikey` header in the request.
+The API is simple to use and make new pastes to. You authenticate by sending an `Authorization: Bearer apikey` header in the request. If you need another header, you can also use the `X-Authorization: Bearer apikey` header.
 ### New Paste
 ```
 POST /api/paste/create

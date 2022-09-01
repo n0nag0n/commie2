@@ -36,7 +36,10 @@ class Api_Controller {
 			exit;
 		}
 
-		$auth_header = $f3->HEADERS['Authorization'];
+		$auth_header = $f3->HEADERS['X-Authorization'];
+		if(empty($auth_header)) {
+			$auth_header = $f3->HEADERS['Authorization'];
+		}
 		if($auth_header !== 'Bearer '.$f3->config['api_key']) {
 			$this->api_result = [ 'error' => 'invalid api_key supplied in Authorization header. Make sure the request header is "Authorization: Bearer apikey"' ];
 			$this->afterRoute($f3);
