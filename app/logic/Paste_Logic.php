@@ -325,7 +325,7 @@ HTML;
 	id="L{$real_line_number}" 
 	class="line-number" 
 >
-	<span class="edit" hx-get="/{$paste->uid}/get-comment-form/{$real_line_number}" 
+	<span class="edit" hx-get="{$this->f3->BASE}/{$paste->uid}/get-comment-form/{$real_line_number}" 
 	hx-target="#L{$real_line_number} .comment-form-container"
 	_="on htmx:beforeRequest 
 		if .new_comment_form.innerHTML.length > 0
