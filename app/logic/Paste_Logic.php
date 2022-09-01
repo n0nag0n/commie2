@@ -207,10 +207,26 @@ class Paste_Logic {
 		if($this->config['enable_smtp'] !== true) {
 			throw new Exception('You need to enable_smtp to be true with proper configs to send emails');
 		}
+
+		// gather all the people that have made comments
+		$emails = [ $paste->email ];
+		foreach($paste->comments as $comment) {
+			$emails[] = $comment->email;
+		}
+
+		// get rid of duplicates
+		$emails = array_unique($emails);
+
+		// the commenter should not get an email...
+		$array_key = array_search($comment_user_email, $emails, true);
+		if(isset($emails[$array_key])) {
+			unset($emails[$array_key]);
+		}
+
 		$content = $this->generateCommentInsightChunk($paste, $line);
 		$Smtp = new Email($this->config['smtp']['host'], $this->config['smtp']['port']);
 		$Smtp->setLogin($this->config['smtp']['username'], $this->config['smtp']['password']);
-		$Smtp->addTo($paste->email);
+		$Smtp->addTo(join(',', $emails));
 		$Smtp->setFrom($this->config['smtp']['from_email'], $this->config['smtp']['from_name']);
 		$Smtp->addReplyTo($comment_user_email);
 		$Smtp->setProtocol(Email::TLS);
@@ -262,14 +278,14 @@ HTML;
 		$line_count = count(explode("\n", $paste->content));
 		if($line - 5 < 0) {
 			$cutting_line = 0;
-			$ending_line = $line;
-		} else if($line + 5 > $line_count) {
-			$cutting_line = $line_count - ($line_count - $line);
+		} 
+		
+		if($line + 5 > $line_count) {
 			$ending_line = $line_count;
 		} else {
-			$cutting_line = $line - 5;
 			$ending_line = 10;
 		}
+
 		$starting_number = $cutting_line + 1;
 		return $this->highlightText($paste, $starting_number, $cutting_line, $ending_line)['highlighted_content'];
 	}
