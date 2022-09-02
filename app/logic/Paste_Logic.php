@@ -10,7 +10,6 @@ use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 use Exception;
 use Highlight\Highlighter;
-use Northys\CSSInliner\CSSInliner;
 use Snipworks\Smtp\Email;
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 

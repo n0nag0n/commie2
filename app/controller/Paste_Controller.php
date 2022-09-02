@@ -32,13 +32,13 @@ class Paste_Controller {
 	public function load(Base $f3, array $args) {
 
 		$template_vars = [
-			'name' => $_COOKIE['name'],
-			'email' => $_COOKIE['email'],
+			'name' => ($_COOKIE['name'] ?? ''),
+			'email' => ($_COOKIE['email'] ?? ''),
 			'page_title' => 'Home - Create a new paste',
 			'base_url' => $f3->BASE
 		];
 
-		if($args['uid']) {
+		if(!empty($args['uid'])) {
 			$time_zone = $this->Paste_Logic->getTimeZone();
 			
 			$Paste = $this->Paste_Logic->getFileContentsAsObject($args['uid'], true);
