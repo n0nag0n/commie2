@@ -35,7 +35,13 @@ class Paste_Controller {
 			'name' => ($_COOKIE['name'] ?? ''),
 			'email' => ($_COOKIE['email'] ?? ''),
 			'page_title' => 'Home - Create a new paste',
-			'base_url' => $f3->BASE
+			'base_url' => $f3->BASE,
+			'highlighted_content' => '',
+			'content' => '',
+			'preview_html' => '',
+			'author' => '',
+			'time' => 0,
+			'page_title' => ''
 		];
 
 		if(!empty($args['uid'])) {
