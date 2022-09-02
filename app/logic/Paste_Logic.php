@@ -11,6 +11,7 @@ use Defuse\Crypto\Key;
 use Exception;
 use Highlight\Highlighter;
 use Snipworks\Smtp\Email;
+use Throwable;
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 use function HighlightUtilities\splitCodeIntoArray;
@@ -398,7 +399,12 @@ HTML;
 				$ip_address = $this->f3->IP;
 			}
 
-			$data = json_decode($this->f3->read('https://geo-ip.io/1.0/ip/'.$ip_address), true);
+			$data = [];
+			try {
+				$data = json_decode($this->f3->read('https://geo-ip.io/1.0/ip/'.$ip_address), true, 512, JSON_THROW_ON_ERROR);
+			} catch(Throwable $e) {
+				$data['timezone'] = 'UTC';
+			}
 			$this->f3->COOKIE['time_zone'] = $data['timezone'] ?? 'UTC';
 		}
 		return $this->f3->COOKIE['time_zone'];

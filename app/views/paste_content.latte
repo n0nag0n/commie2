@@ -1,5 +1,5 @@
 {if $author}
-<h2 id="author">{$author} pasted this on <span class="utc-time">{$time|date:'d-M-Y g:i a T'}</span></h2>
+<h2 id="author">{$author} pasted this on <span class="utc-time">{$time|date:'d-M-Y g:i a e'}</span></h2>
 {/if}
 <div id="paste-container" {$preview_html ? 'style="width: 49.5%; display:inline-block;"' |noescape}>
     <div id="paste">
