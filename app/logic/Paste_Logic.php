@@ -253,7 +253,7 @@ class Paste_Logic {
 			<div id="paste">
 				{$content}
 			</div>
-			<p>You can view this comment directly on the page by clicking <a href="{$this->config['app_base_url']}#{$paste->uid}">here</a>.</p>
+			<p>You can view this comment directly on the page by clicking <a href="{$this->config['app_base_url']}/{$paste->uid}">here</a>.</p>
 			<p>Hope you have a nice day!</p>
 			<p>Commie Bot</p>
 		</div>
