@@ -2,6 +2,8 @@
 
 commie 2.0 is a pastebin script with line commenting support. This was originally forked from [splitbrain/commie](https://github.com/splitbrain/commie) and further improved and expanded upon.
 
+To view a demo of commie2, [click here](https://commie2.sky-9.com/). Emailing has been disabled for potential abuse cases.
+
 ## Features
 - Pastes are stored as files on the filesystem, encrypted at rest. (no need to configure a database, or plugins, etc.)
 - Every line is commentable with the ability for multiple comments from multiple users.
