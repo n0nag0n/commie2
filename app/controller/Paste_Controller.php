@@ -7,6 +7,7 @@ use Base;
 use DateTime;
 use DateTimeZone;
 use logic\Paste_Logic;
+use Throwable;
 use Web;
 
 class Paste_Controller {
@@ -157,6 +158,38 @@ class Paste_Controller {
 		}
 		header('Content-Type: text/css');
 		echo $contents;
+	}
+
+	/**
+	 * Search from the command line for a specific paste
+	 *
+	 * @param Base $f3 f3 class
+	 * @return void
+	 */
+	public function search(Base $f3) {
+		$keyword = $f3->GET['keyword'];
+		
+		if(empty($keyword)) {
+			die('You need to specify a --keyword');
+		}
+		$f3->DEBUG = 3;
+		foreach(glob(__DIR__.'/../../data/**/**.paste') as $file_path) {
+			$base_name = basename($file_path);
+			$exploded = explode('.', $base_name);
+			$uid = $exploded[0];
+			try {
+				$Paste = $this->Paste_Logic->getFileContentsAsObject($uid);
+			} catch(Throwable $e) {
+				echo "Error: ".$e->getMessage()."\n";
+				continue;
+			}
+			if(stripos($Paste->content, $keyword) === false) {
+				continue;
+			}
+			
+			echo "Found in ".$base_name."\n";
+			echo $Paste->content."\n\n";
+		}
 	}
 
 }

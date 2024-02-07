@@ -29,6 +29,9 @@ $f3->route('GET /@uid/get-comment-form/@line_number', Paste_Controller::class.'-
 $f3->route('POST /save-paste', Paste_Controller::class.'->savePaste');
 $f3->route('POST /@uid/save-comment/@line_number', Paste_Controller::class.'->saveComment');
 
+// Cli
+$f3->route('GET /search [cli]', Paste_Controller::class.'->search');
+
 // API
 $f3->route('/POST /api/paste/create', Api_Controller::class.'->savePaste');
 $f3->route('/POST /api/paste/@uid/comment/@line_number/create', Api_Controller::class.'->saveComment');
