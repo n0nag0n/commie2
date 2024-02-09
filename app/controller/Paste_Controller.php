@@ -52,7 +52,7 @@ class Paste_Controller {
 			$template_vars = [
 				'highlighted_content' => $Paste->highlighted_content,
 				'content' => $Paste->content,
-				'preview_html' => $Paste->preview_html,
+				'preview_html' => $Paste->preview_html ?? '',
 				'author' => $Paste->name,
 				'time' => (new DateTime('@'.$Paste->time, new DateTimeZone($time_zone))),
 				'page_title' => 'Paste by '.$Paste->name.' ('.$args['uid'].')'
@@ -81,7 +81,7 @@ class Paste_Controller {
 		$template_vars = [
 			'highlighted_content' => $Paste->highlighted_content,
 			'content' => $Paste->content,
-			'preview_html' => $Paste->preview_html,
+			'preview_html' => $Paste->preview_html ?? '',
 			'author' => $Paste->name,
 			'time' => (new DateTime('@'.$Paste->time, new DateTimeZone($time_zone))),
 		];
