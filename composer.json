@@ -1,6 +1,6 @@
 {
     "require": {
-        "scrivo/highlight.php": "v9.18.1.9",
+        "scrivo/highlight.php": "v9.18.1.10",
         "snipworks/php-smtp": "^2.0",
         "defuse/php-encryption": "^2.3",
         "cebe/markdown": "^1.2",
