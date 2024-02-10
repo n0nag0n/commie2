@@ -55,7 +55,8 @@ class Paste_Controller {
 				'preview_html' => $Paste->preview_html ?? '',
 				'author' => $Paste->name,
 				'time' => (new DateTime('@'.$Paste->time, new DateTimeZone($time_zone))),
-				'page_title' => 'Paste by '.$Paste->name.' ('.$args['uid'].')'
+				'page_title' => 'Paste by '.$Paste->name.' ('.$args['uid'].')',
+				'uid' =>  $args['uid'],
 			] + $template_vars;
 		}
 
@@ -84,6 +85,7 @@ class Paste_Controller {
 			'preview_html' => $Paste->preview_html ?? '',
 			'author' => $Paste->name,
 			'time' => (new DateTime('@'.$Paste->time, new DateTimeZone($time_zone))),
+			'uid' => $Paste->uid,
 		];
 		echo $f3->Latte->render(__DIR__.'/../views/paste_content.latte', $template_vars);
 	}
