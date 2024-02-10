@@ -1,39 +1,48 @@
 <?php
 declare(strict_types=1);
 
-use controller\Api_Controller;
+use app\controller\ApiController;
 use Latte\Engine;
-use controller\Paste_Controller;
+use app\controller\PasteController;
+use app\middleware\ApiMiddleware;
 
 require_once(__DIR__.'/../vendor/autoload.php');
 
-$f3 = Base::instance();
-$f3->AUTOLOAD = __DIR__.'/../app/';
-$f3->config = require(__DIR__ . '/../app/config/.config.php');
+$app = Flight::app();
+$config = require(__DIR__ . '/../app/config/.config.php');
+$app->path(__DIR__.'/../');
 
-$f3->Latte = new Engine;
-$latte_cache_path = __DIR__.'/../data/latte_cache/';
-if(file_exists($latte_cache_path) === false) {
-	mkdir($latte_cache_path);
-}
-$f3->Latte->setTempDirectory($latte_cache_path);
+$app->register('latte', Engine::class, array(), function($latte){
+	$latte_cache_path = __DIR__.'/../data/latte_cache/';
+	if(file_exists($latte_cache_path) === false) {
+		mkdir($latte_cache_path);
+	}
+	$latte->setTempDirectory(__DIR__ . '/../app/cache');
+	return $latte;
+});
 
+$router = $app->router();
+
+$PasteController = new PasteController($app, $config);
 // css and js
-$f3->route('GET /js', Paste_Controller::class.'->js');
-$f3->route('GET /css', Paste_Controller::class.'->css');
+$router->get('/js', [ $PasteController, 'js' ]);
+$router->get('/css', [ $PasteController, 'css' ]);
 
 // main UI
-$f3->route('GET /', Paste_Controller::class.'->load');
-$f3->route('GET /@uid', Paste_Controller::class.'->load');
-$f3->route('GET /@uid/get-comment-form/@line_number', Paste_Controller::class.'->getCommentForm');
-$f3->route('POST /save-paste', Paste_Controller::class.'->savePaste');
-$f3->route('POST /@uid/save-comment/@line_number', Paste_Controller::class.'->saveComment');
+$router->get('/', [ $PasteController, 'load' ]);
+$router->get('/@uid', [ $PasteController, 'load' ]);
+$router->get('/@uid/get-comment-form/@line_number', [ $PasteController, 'getCommentForm' ]);
+$router->post('/save-paste', [ $PasteController, 'savePaste' ]);
+$router->post('/@uid/save-comment/@line_number', [ $PasteController, 'saveComment' ]);
 
 // Cli
-$f3->route('GET /search [cli]', Paste_Controller::class.'->search');
+//$f3->route('GET /search [cli]', PasteController::class.'->search');
 
 // API
-$f3->route('/POST /api/paste/create', Api_Controller::class.'->savePaste');
-$f3->route('/POST /api/paste/@uid/comment/@line_number/create', Api_Controller::class.'->saveComment');
+$ApiController = new ApiController($app, $config);
+$router->group('/api/paste', function($router) use ($ApiController) {
+	$router->post('/create', [ $ApiController, 'savePaste' ]);
+	$router->post('/@uid/comment/@line_number/create', [ $ApiController, 'saveComment' ]);
+}, [ new ApiMiddleware($app, $config) ]);
 
-$f3->run();
+$app->start();

@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace logic;
+namespace app\logic;
 
-use Base;
 use DateTime;
 use DateTimeZone;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 use Exception;
+use flight\Engine;
 use Highlight\Highlighter;
 use Snipworks\Smtp\Email;
 use Throwable;
@@ -16,7 +16,7 @@ use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 use function HighlightUtilities\splitCodeIntoArray;
 
-class Paste_Logic {
+class PasteLogic {
 
 	/** @var string */
 	protected $savedir;
@@ -24,15 +24,15 @@ class Paste_Logic {
 	/** @var array<string, mixed> */
 	protected $config;
 
-	protected Base $f3;
+	protected Engine $app;
 
 	/**
 	 * Construct
 	 */
-	public function __construct(Base $f3) {
-		$this->f3 = $f3;
+	public function __construct(Engine $app, array $config) {
+		$this->app = $app;
 		$this->savedir = __DIR__ . '/../../data/';
-		$this->config = $f3->config;
+		$this->config = $config;
 	}
 
 	/**
@@ -61,8 +61,8 @@ class Paste_Logic {
 			'comments' => [] 
 		])) {
 			$thirty_days = (time() + (60 * 60 * 24 * 30));
-			$this->f3->set('COOKIE.name', $name, $thirty_days);
-			$this->f3->set('COOKIE.email', $email, $thirty_days);
+			setcookie('name', $name, $thirty_days);
+			setcookie('email', $email, $thirty_days);
 			return [ 'uid' => $uid ];
 		}
 		return false;
@@ -103,8 +103,8 @@ class Paste_Logic {
 			}
 
 			$thirty_days = (time() + (60 * 60 * 24 * 30));
-			$this->f3->set('COOKIE.name', $name, $thirty_days);
-			$this->f3->set('COOKIE.email', $email, $thirty_days);
+			setcookie('name', $name, $thirty_days);
+			setcookie('email', $email, $thirty_days);
 
 			return $data;
 		}
@@ -338,7 +338,7 @@ HTML;
 						'time' => (new DateTime('@'.$comment_line->time, new DateTimeZone($this->getTimeZone()))),
 						'name' => $comment_line->name
 					];
-					$comment_html .= $this->f3->Latte->renderToString(__DIR__.'/../views/comment.latte', $template_vars);
+					$comment_html .= $this->app->latte()->renderToString(__DIR__.'/../views/comment.latte', $template_vars);
 				}
 			}
 			$html .= <<<HTML
@@ -346,7 +346,7 @@ HTML;
 	id="L{$real_line_number}" 
 	class="line-number" 
 >
-	<span class="edit" hx-get="{$this->f3->BASE}/{$paste->uid}/get-comment-form/{$real_line_number}" 
+	<span class="edit" hx-get="{$this->app->get('flight.base_url')}/{$paste->uid}/get-comment-form/{$real_line_number}" 
 	hx-target="#L{$real_line_number} .comment-form-container"
 	_="on htmx:beforeRequest 
 		if .new_comment_form.innerHTML.length > 0
@@ -392,21 +392,24 @@ HTML;
 	 */
 	public function getTimeZone(string $ip_address = ''): string {
 		
+		$tz = $this->app->request()->cookies['time_zone'];
+
 		// Pull out time zone data
-		if(empty($this->f3->COOKIE['time_zone'])) {
+		if(empty($tz)) {
 
 			if(empty($ip_address)) {
-				$ip_address = $this->f3->IP;
+				$ip_address = $this->app->request()->ip;
 			}
 
 			$data = [];
 			try {
-				$data = json_decode($this->f3->read('https://geo-ip.io/1.0/ip/'.$ip_address), true, 512, JSON_THROW_ON_ERROR);
+				$data = json_decode(file_get_contents('https://geo-ip.io/1.0/ip/'.$ip_address), true, 512, JSON_THROW_ON_ERROR);
 			} catch(Throwable $e) {
 				$data['timezone'] = 'UTC';
 			}
-			$this->f3->COOKIE['time_zone'] = $data['timezone'] ?? 'UTC';
+			$tz = $data['timezone'] ?? 'UTC';
+			setcookie('time_zone', $tz, (time() + (60 * 60 * 24 * 30)));
 		}
-		return $this->f3->COOKIE['time_zone'];
+		return $tz;
 	}
 }

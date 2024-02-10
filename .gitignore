@@ -1,3 +1,4 @@
 data/
 app/config/.config.php
+app/cache/
 vendor/

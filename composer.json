@@ -5,7 +5,8 @@
         "defuse/php-encryption": "^2.3",
         "cebe/markdown": "^1.2",
         "latte/latte": "^2.11",
-        "bcosca/fatfree-core": "^3.8",
-        "tijsverkoyen/css-to-inline-styles": "^2.2"
-	}
+        "tijsverkoyen/css-to-inline-styles": "^2.2",
+        "flightphp/core": "^3.4"
+	},
+	"license": "MIT"
 }

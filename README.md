@@ -19,10 +19,10 @@ To view a demo of commie2, [click here](https://commie2.sky-9.com/). Emailing ha
    - [hyperscript](https://hyperscript.org) - adds simple javascript functionality that is very easy to read.
    - [latte](https://latte.nette.org) - for templating engine that honestly is really nice. Better than Twig IMO.
    - [scrivo/highlight.php](https://github.com/scrivo/highlight.php) - port of [highlight.js](https://github.com/highlightjs/highlight.js/) with support for many languages.
-   - [fatfree framework](https://fatfreeframework.com) - simple full stack framework to get stuff done pretty quick. 
+   - [flight framework](https://docs.flightphp.com) - lightweight framework that is very easy to use and understand. 
 
 ## Install
-To install, simply clone this repo and configure your webserver to point to the `public/` directory. If you use apache webserver, there is a .htaccess file that is already configured in the `public/` dir. For more info on other sites such as nginx, go [here](https://fatfreeframework.com/3.8/routing-engine#DynamicWebSites). You will also need composer and to run `composer install`. Then move to the configuration section.
+To install, simply clone this repo and configure your webserver to point to the `public/` directory. If you use apache webserver, there is a .htaccess file that is already configured in the `public/` dir. For more info on other sites such as nginx, go [here](https://docs.flightphp.com/install). You will also need composer and to run `composer install`. Then move to the configuration section.
 
 ## Configuration
 This is very easy to configure. There is a `.config_sample.php` file with instructions on how to enable emailing, encryption, and other settings. Copy or rename this file to `.config.php` and you're on your way!
