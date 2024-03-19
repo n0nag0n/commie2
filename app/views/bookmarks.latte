@@ -49,8 +49,8 @@ request.onsuccess = function(event) {
 			var month   = d.toLocaleString("en-US", { month: "long" });
 			var day     = d.getUTCDate();
 			var year    = d.getUTCFullYear();
-
-			div.innerHTML += "<li style='margin-bottom:10px;'><a href='/" + cursor.value.commie_id + "'>" + cursor.value.title + '</a> - ' + month + " " + day + " " + year + ' - <button onClick="deleteBookmark(' + id + ')">Delete</button></li>';
+			var baseUrl = {=Flight::get('flight.base_url')};
+			div.innerHTML += "<li style='margin-bottom:10px;'><a href='" + baseUrl + "/" + cursor.value.commie_id + "'>" + cursor.value.title + '</a> - ' + month + " " + day + " " + year + ' - <button onClick="deleteBookmark(' + id + ')">Delete</button></li>';
 			cursor.continue();
 		}
 	};
