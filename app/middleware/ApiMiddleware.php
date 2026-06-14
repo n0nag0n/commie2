@@ -16,21 +16,32 @@ class ApiMiddleware {
 		$this->config = $config;
 	}
 
-	public function before() {
+	/**
+	 * @return array<string, string>|null
+	 */
+	public function getAuthorizationError(?string $authHeader): ?array {
 		if(empty($this->config['api_key'])) {
-			$api_result = [ 'error' => 'api_key needs to be set in the config file.' ];
-			header('Content-Type: application/json');
-			die(json_encode($api_result, JSON_UNESCAPED_SLASHES));
+			return [ 'error' => 'api_key needs to be set in the config file.' ];
 		}
 
+		$expected = 'Bearer '.$this->config['api_key'];
+		if(!hash_equals($expected, $authHeader ?? '')) {
+			return [ 'error' => 'invalid api_key supplied in Authorization header. Make sure the request header is "Authorization: Bearer apikey"' ];
+		}
+
+		return null;
+	}
+
+	public function before() {
 		$auth_header = $this->app->request()->getHeader('X-Authorization');
 		if(empty($auth_header)) {
 			$auth_header = $this->app->request()->getHeader('Authorization');
 		}
-		if($auth_header !== 'Bearer '.$this->config['api_key']) {
-			$api_result = [ 'error' => 'invalid api_key supplied in Authorization header. Make sure the request header is "Authorization: Bearer apikey"' ];
+
+		$error = $this->getAuthorizationError($auth_header);
+		if($error !== null) {
 			header('Content-Type: application/json');
-			die(json_encode($api_result, JSON_UNESCAPED_SLASHES));
+			die(json_encode($error, JSON_UNESCAPED_SLASHES));
 		}
 	}
 }

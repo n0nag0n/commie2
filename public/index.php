@@ -9,6 +9,8 @@ use app\middleware\ApiMiddleware;
 require_once(__DIR__.'/../vendor/autoload.php');
 
 $app = Flight::app();
+$app->set('flight.allow_method_override', false);
+$app->set('flight.log_errors', true);
 $config = require(__DIR__ . '/../app/config/.config.php');
 $app->path(__DIR__.'/../');
 

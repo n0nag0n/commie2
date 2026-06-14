@@ -50,7 +50,7 @@ class PasteLogic {
 			$path = $this->getDataFilePath($uid, 'paste');
 		} while (file_exists($path));
 
-		@mkdir(dirname($path), 0777, true);
+		@mkdir(dirname($path), 0755, true);
 		if($this->saveFileContentsFromObject($path, [ 
 			'uid' => $uid, 
 			'content' => $content, 
@@ -61,8 +61,8 @@ class PasteLogic {
 			'comments' => [] 
 		])) {
 			$thirty_days = (time() + (60 * 60 * 24 * 30));
-			setcookie('name', $name, $thirty_days);
-			setcookie('email', $email, $thirty_days);
+			$this->setClientCookie('name', $name, $thirty_days);
+			$this->setClientCookie('email', $email, $thirty_days);
 			return [ 'uid' => $uid ];
 		}
 		return false;
@@ -80,6 +80,7 @@ class PasteLogic {
 	 */
 	public function saveComment(string $uid, int $line, string $comment, string $name, string $email) {
 		$paste_path = $this->getDataFilePath($uid, 'paste');
+		$this->assertValidUidAndPath($uid, $paste_path);
 		if(!file_exists($paste_path)) {
 			return false;
 		}
@@ -103,12 +104,59 @@ class PasteLogic {
 			}
 
 			$thirty_days = (time() + (60 * 60 * 24 * 30));
-			setcookie('name', $name, $thirty_days);
-			setcookie('email', $email, $thirty_days);
+			$this->setClientCookie('name', $name, $thirty_days);
+			$this->setClientCookie('email', $email, $thirty_days);
 
 			return $data;
 		}
 		return false;
+	}
+
+	/**
+	 * @param string $uid
+	 * @param string $path
+	 * @return void
+	 */
+	private function assertValidUidAndPath(string $uid, string $path): void {
+		$this->assertValidUid($uid);
+
+		if($path !== $this->getDataFilePath($uid, 'paste')) {
+			throw new Exception('Unable to find paste');
+		}
+
+		$base = realpath($this->savedir);
+		$dir = dirname($path);
+		$resolved = realpath($dir);
+		if($base !== false && $resolved !== false && strpos($resolved, $base) !== 0) {
+			throw new Exception('Unable to find paste');
+		}
+	}
+
+	/**
+	 * @param string $uid
+	 * @return void
+	 */
+	private function assertValidUid(string $uid): void {
+		if(!preg_match('/^[A-Za-z0-9]{4,128}$/', $uid)) {
+			throw new Exception('Unable to find paste');
+		}
+	}
+
+	/**
+	 * @param string $name
+	 * @param string $value
+	 * @param int $expires
+	 * @return void
+	 */
+	private function setClientCookie(string $name, string $value, int $expires): void {
+		$secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+		setcookie($name, $value, [
+			'expires' => $expires,
+			'path' => '/',
+			'samesite' => 'Lax',
+			'httponly' => true,
+			'secure' => $secure,
+		]);
 	}
 
 	/**
@@ -129,6 +177,7 @@ class PasteLogic {
 	 */
 	public function getFileContentsAsObject(string $uid, bool $add_highlight = false) {
 		$file_path = $this->getDataFilePath($uid, 'paste');
+		$this->assertValidUidAndPath($uid, $file_path);
 		if(file_exists($file_path) !== true) {
 			throw new Exception('Unable to find paste');
 		}
@@ -180,14 +229,12 @@ class PasteLogic {
 	 * @return string
 	 */
 	public function createUniqueHash($len = 8) {
-		$hex  = md5("someething salty!!!" . uniqid("", true));
-		$pack = pack('H*', $hex);
-		$tmp  = base64_encode($pack);
-		$uid  = preg_replace("#(*UTF8)[^A-Za-z0-9]#", "", $tmp);
-		$len  = max(4, min(128, $len));
+		$len = max(4, min(128, $len));
+		$uid = '';
 
 		while (strlen($uid) < $len) {
-			$uid .= $this->createUniqueHash(22);
+			$tmp = base64_encode(random_bytes(16));
+			$uid .= preg_replace("#(*UTF8)[^A-Za-z0-9]#", "", $tmp);
 		}
 
 		return substr($uid, 0, $len);
@@ -381,7 +428,7 @@ HTML;
 		$parsed_text = preg_replace_callback("~(<pre><code>|<code>)([\s\S]+)(</code></pre>|</code>)~iUm", function($matches) {
 			return $matches[1].htmlspecialchars_decode($matches[2]).$matches[3];
 		}, $parsed_text);
-		return $parsed_text;
+		return HtmlSanitizer::sanitize($parsed_text);
 	}
 
 	/**
@@ -408,7 +455,7 @@ HTML;
 				$data['timezone'] = 'UTC';
 			}
 			$tz = $data['timezone'] ?? 'UTC';
-			setcookie('time_zone', $tz, (time() + (60 * 60 * 24 * 30)));
+			$this->setClientCookie('time_zone', $tz, (time() + (60 * 60 * 24 * 30)));
 		}
 		return $tz;
 	}

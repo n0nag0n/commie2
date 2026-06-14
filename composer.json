@@ -6,7 +6,28 @@
         "cebe/markdown": "^1.2",
         "latte/latte": "^2.11",
         "tijsverkoyen/css-to-inline-styles": "^2.2",
-        "flightphp/core": "^3.4"
-	},
-	"license": "MIT"
+        "flightphp/core": "^3.18.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4.33"
+        }
+    },
+    "license": "MIT"
 }
